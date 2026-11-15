@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة السوبر أدمن - إدارة المنصة</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Cairo', sans-serif; background-color: #0b0806; color: #f5ebe0; }
+  </style>
+</head>
+<body class="min-h-screen p-5 flex justify-center">
+
+  <div class="w-full max-w-3xl space-y-6">
+    
+    <header class="text-center border-b border-[#d9a066]/30 pb-4">
+      <h1 class="text-2xl font-extrabold text-[#eab364]">لوحة تحكم السوبر أدمن 👑</h1>
+      <p class="text-xs text-[#b89f8d] mt-1">إنشاء حسابات الكافيهات وإدارة حالة اشتراكاتها</p>
+    </header>
+
+    <!-- 1. نموذج إنشاء كافيه جديد -->
+    <div class="bg-[#180f0a] border border-[#d9a066]/30 rounded-3xl p-6 space-y-4 shadow-xl">
+      <h2 class="text-lg font-bold text-[#f5ebe0] border-r-4 border-[#eab364] pr-3">إنشاء كافيه جديد</h2>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+          <label class="block text-xs text-[#b89f8d] mb-1">المعرّف (ID)</label>
+          <input type="text" id="newCafeId" placeholder="royal-cafe" dir="ltr" class="w-full bg-[#23150e] border border-[#d9a066]/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs text-[#b89f8d] mb-1">اسم الكافيه</label>
+          <input type="text" id="newCafeName" placeholder="رويال كافيه" class="w-full bg-[#23150e] border border-[#d9a066]/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs text-red-400 mb-1">كلمة السر</label>
+          <input type="text" id="newCafePassword" placeholder="123456" class="w-full bg-[#23150e] border border-red-500/40 rounded-xl px-3 py-2 text-sm text-white focus:outline-none" />
+        </div>
+      </div>
+
+      <button onclick="createNewCafe()" class="w-full bg-[#eab364] hover:bg-[#d99b43] text-[#120b07] font-bold py-2.5 rounded-xl transition cursor-pointer text-sm">
+        إضافة الكافيه وتوليد الحساب 🚀
+      </button>
+
+      <p id="superMsg" class="text-center text-sm font-bold"></p>
+    </div>
+
+    <!-- 2. قائمة الكافيهات المشاركة والتحكم بها -->
+    <div class="bg-[#180f0a] border border-[#d9a066]/30 rounded-3xl p-6 space-y-4 shadow-xl">
+      <div class="flex justify-between items-center">
+        <h2 class="text-lg font-bold text-[#f5ebe0] border-r-4 border-[#eab364] pr-3">الكافيهات المشاركة في المنصة</h2>
+        <button onclick="loadCafesList()" class="bg-[#2a1b12] hover:bg-[#3a261a] border border-[#d9a066]/40 text-[#eab364] text-xs px-3 py-1.5 rounded-xl cursor-pointer">
+          🔄 تحديث القائمة
+        </button>
+      </div>
+
+      <div id="cafesListContainer" class="space-y-3 max-h-96 overflow-y-auto">
+        <p class="text-xs text-center text-[#b89f8d]">جاري تحميل الكافيهات...</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDocs, collection, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAKrzt23VEmwrYInkrRO-VtLNAGILnvAis",
+      authDomain: "saas21.firebaseapp.com",
+      projectId: "saas21",
+      storageBucket: "saas21.firebasestorage.app",
+      messagingSenderId: "493115658602",
+      appId: "1:493115658602:web:854c0496b336866b669513",
+      measurementId: "G-8MRHWFJEMY"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadCafesList();
+    });
+
+    window.createNewCafe = async function() {
+      const cafeId = document.getElementById('newCafeId').value.trim().toLowerCase().replace(/\s+/g, '-');
+      const cafeName = document.
+
+getElementById('newCafeName').value.trim();
+      const cafePassword = document.getElementById('newCafePassword').value.trim();
+      const superMsg = document.getElementById('superMsg');
+
+      if (!cafeId || !cafeName ||  !cafePassword) {
+        alert('يرجى ملء جميع الحقول!');
+        return;
+      }
+
+      superMsg.textContent = 'جاري الإنشاء...';
+      superMsg.className = 'text-center text-sm font-bold text-[#b89f8d]';
+
+      try {
+        await setDoc(doc(db, "cafes", cafeId), {
+          name: cafeName,
+          password: cafePassword,
+          active: true, // الكافيه مفصول أو شغال افتراضياً
+          createdAt: new Date()
+        });
+
+        superMsg.innerHTML =' تم إنشاء الكافيه (${cafeName}) بنجاح! ';
+        superMsg.className = 'text-center text-sm font-bold text-green-400 mt-2';
+        
+        document.getElementById('newCafeId').value = '';
+        document.getElementById('newCafeName').value = '';
+        document.getElementById('newCafePassword').value = '';
+        
+        loadCafesList();
+      } catch (error) {
+        console.error(error);
+        superMsg.textContent = 'حدث خطأ أثناء الإنشاء.';
+        superMsg.className = 'text-center text-sm font-bold text-red-400';
+      }
+    };
+
+    // جلب وعرض كل الكافيهات المسجلة
+    window.loadCafesList = async function() {
+      const container = document.getElementById('cafesListContainer');
+      container.innerHTML = '<p class="text-xs text-center text-[#b89f8d]">جاري الجلب...</p>';
+      
+      try {
+        const querySnapshot = await getDocs(collection(db, "cafes"));
+        let html = '';
+
+        if (querySnapshot.empty) {
+          container.innerHTML = '<p class="text-xs text-center text-[#b89f8d]">لا توجد كافيهات مسجلة حتى الآن.</p>';
+          return;
+        }
+
+        querySnapshot.forEach((docSnap) => {
+          const cafe = docSnap.data();
+          const cafeId = docSnap.id;
+          const isActive = cafe.active !== false; // لو مش موجودة بتعتبر شغالة
+
+          html += `
+            <div class="bg-[#23150e] border border-[#d9a066]/20 p-3 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+              <div>
+                <span class="text-[#eab364] font-bold text-sm">${cafe.name || cafeId}</span>
+                <span class="text-[#b89f8d] block" dir="ltr">ID: ${cafeId} | Pass: ${cafe.password || 'غير محددة'}</span>
+                <span class="inline-block mt-1 px-2 py-0.5 rounded-md font-bold ${isActive ? 'bg-emerald-900/60 text-emerald-400' : 'bg-red-900/60 text-red-400'}">
+                  ${isActive ? 'الحالة: يعمل بشكل طبيعي ✅' : 'الحالة: متوقف (مغلق من السوبر أدمن) ⛔'}
+                </span>
+              </div>
+              
+              <div class="flex items-center gap-2">
+                <button onclick="toggleCafeStatus('${cafeId}', ${isActive})" class="px-3 py-1.5 rounded-xl font-bold cursor-pointer text-white ${isActive ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700'}">
+                  ${isActive ? 'إيقاف المنيو ⏸️' : 'تفعيل المنيو ▶️'}
+                </button>
+                <button onclick="deleteCafe('${cafeId}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-xl font-bold cursor-pointer">
+                  حذف 🗑️
+                </button>
+              </div>
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
+      } catch (error) {
+        console.error(error);
+        container.innerHTML = '<p class="text-xs text-center text-red-400">خطأ في جلب الكافيهات.</p>';
+      }
+    };
+
+    // تبديل حالة الكافيه (إيقاف أو تفعيل)
+    window.toggleCafeStatus = async function(cafeId, currentStatus) {
+      const newStatus = !currentStatus;
+      try {
+        await updateDoc(doc(db, "cafes", cafeId), {
+          active: newStatus
+        });
+        alert(newStatus ? 'تم تفعيل المنيو بنجاح!' : 'تم إيقاف المنيو بنجاح!');
+        loadCafesList();
+      } catch (error) {
+        console.error(error);
+        alert('حدث خطأ أثناء تغيير الحالة.');
+      }
+    };
+
+    // حذف الكافيه
+    window.
+
+deleteCafe = async function(cafeId) {
+      if (confirm(`هل أنت متأكد من حذف كافيه (${cafeId}) نهائياً؟`)) {
+        try {
+          await deleteDoc(doc(db, "cafes", cafeId));
+          alert('تم الحذف بنجاح!');
+          loadCafesList();
+        } catch (error) {
+          console.error(error);
+          alert('حدث خطأ أثناء الحذف.');
+        }
+      }
+    };
+  </script>
+</body>
+</html>

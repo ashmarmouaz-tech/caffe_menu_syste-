@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>المنيو الإلكتروني</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Cairo & Great Vibes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Great+Vibes&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #0b0806;
+      color: #f5ebe0;
+      overflow-x: hidden;
+    }
+
+    .neon-logo {
+      font-family: 'Great Vibes', cursive;
+      color: #fff6e5;
+      text-shadow:
+        0 0 7px rgba(255, 190, 110, 0.85),
+        0 0 18px rgba(245, 158, 11, 0.65),
+        0 0 36px rgba(217, 119, 6, 0.45);
+    }
+
+    .arabic-logo {
+      font-family: 'Cairo', sans-serif;
+      font-weight: 800;
+      color: #fff6e5;
+      text-shadow:
+        0 0 10px rgba(255, 190, 110, 0.75),
+        0 0 24px rgba(245, 158, 11, 0.5);
+    }
+
+    .gold-glow-box {
+      border: 1.5px solid rgba(235, 175, 100, 0.65);
+      box-shadow:
+        0 0 15px rgba(235, 175, 100, 0.2),
+        inset 0 0 12px rgba(235, 175, 100, 0.12);
+    }
+
+    .category-card {
+      background: linear-gradient(180deg, rgba(38, 25, 18, 0.78) 0%, rgba(20, 13, 9, 0.94) 100%);
+      border: 1px solid rgba(217, 160, 102, 0.22);
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .category-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(245, 185, 110, 0.65);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.65), 0 0 15px rgba(217, 140, 60, 0.2);
+    }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #140d09; }
+    ::-webkit-scrollbar-thumb { background: #5c3d28; border-radius: 10px; }
+  </style>
+</head>
+<body class="min-h-screen flex justify-center bg-[#090604]">
+
+  <div class="relative w-full max-w-md min-h-screen bg-[#120b07] shadow-2xl overflow-hidden flex flex-col justify-between pb-8">
+
+    <!-- خلفية الكافيه -->
+    <div class="absolute inset-0 z-0 pointer-events-none">
+      <img src="./images/s.jpg" alt="Cafe Ambience" class="w-full h-[55%] object-cover object-center opacity-55" />
+      <div class="absolute inset-0 bg-gradient-to-b from-[#0d0805]/50 via-[#120b07]/85 to-[#120b07]"></div>
+    </div>
+
+    <div class="relative z-10 flex flex-col items-center px-5 pt-10">
+
+      <header class="text-center mb-8 select-none">
+        <div id="logoWrapper" class="neon-logo leading-none">
+          <span id="cafeLogoTop" class="block text-4xl sm:text-5xl -mb-1 transform -rotate-2">Welcome to</span>
+          <span id="cafeLogoMain" class="block text-6xl sm:text-7xl tracking-wide mt-2">The Café</span>
+        </div>
+        <p class="mt-4 text-xs sm:text-sm tracking-[0.18em] text-[#e7d7c5] font-medium" dir="ltr">
+          Coffee • Friends • Good Vibes
+        </p>
+      </header>
+
+      <!-- تنبيه اختياري -->
+      <div id="noticeBox" class="hidden w-full text-center py-6 px-5 bg-[#180f0a]/95 border border-[#d9a066]/40 rounded-3xl space-y-2 mb-4 shadow-xl">
+        <p id="noticeText" class="text-xs sm:text-sm text-[#b89f8d]"></p>
+      </div>
+
+<!-- الأقسام -->
+      <main id="categoriesContainer" class="w-full grid grid-cols-2 gap-3.5 sm:gap-4">
+
+        <!-- 1. أراغيل -->
+        <button type="button" onclick="openCategory('hookah', 'أراغيل', 'Hookah & Shisha')" class="category-card rounded-3xl p-2.5 text-right flex flex-col justify-between group focus:outline-none cursor-pointer">
+          <div class="w-full h-32 sm:h-36 rounded-2xl overflow-hidden relative bg-[#23150e]">
+            <img src="./images/l.jpg" alt="أراغيل" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+          </div>
+          <div class="flex items-center justify-between pt-3 pb-1 px-1">
+            <div>
+              <h2 class="text-base sm:text-lg font-bold text-[#f5ebe0] leading-tight">أراغيل</h2>
+              <span class="text-[11px] text-[#b89f8d] font-medium block mt-0.5" dir="ltr">Hookah</span>
+            </div>
+            <svg class="w-8 h-8 text-[#e5d3c0] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2v3" /><path d="M9 5h6l-1 3h-4L9 5z" /><path d="M12 8v5" /><path d="M8 21h8" /><path d="M9 21c-1-3 0-6 3-8 3 2 4 5 3 8" /><path d="M14 13c3 0 5 1.5 5 4s-1.5 3-1.5 3" /></svg>
+          </div>
+        </button>
+
+        <!-- 2. المشروبات الساخنة -->
+        <button type="button" onclick="openCategory('hot', 'المشروبات الساخنة', 'Hot Drinks')" class="category-card rounded-3xl p-2.5 text-right flex flex-col justify-between group focus:outline-none cursor-pointer">
+          <div class="w-full h-32 sm:h-36 rounded-2xl overflow-hidden relative bg-[#23150e]">
+            <img src="./images/a.jpg" alt="المشروبات الساخنة" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+          </div>
+          <div class="flex items-center justify-between pt-3 pb-1 px-1">
+            <div>
+              <h2 class="text-base sm:text-lg font-bold text-[#f5ebe0] leading-tight">المشروبات<br>الساخنة</h2>
+              <span class="text-[11px] text-[#b89f8d] font-medium block mt-0.5" dir="ltr">Hot Drinks</span>
+            </div>
+            <svg class="w-8 h-8 text-[#e5d3c0] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 8h1a4 4 0 1 1 0 8h-1" /><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" /><line x1="6" y1="2" x2="6" y2="4" /><line x1="10" y1="2" x2="10" y2="4" /><line x1="14" y1="2" x2="14" y2="4" /></svg>
+          </div>
+        </button>
+
+        <!-- 3. المشروبات الباردة -->
+        <button type="button" onclick="openCategory('cold', 'المشروبات الباردة', 'Cold Drinks')" class="category-card rounded-3xl p-2.5 text-right flex flex-col justify-between group focus:outline-none cursor-pointer">
+          <div class="w-full h-32 sm:h-36 rounded-2xl overflow-hidden relative bg-[#23150e]">
+            <img src="./images/o.jpg" alt="المشروبات الباردة" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+          </div>
+          <div class="flex items-center justify-between pt-3 pb-1 px-1">
+            <div>
+              <h2 class="text-base sm:text-lg font-bold text-[#f5ebe0] leading-tight">المشروبات<br>الباردة</h2>
+              <span class="text-[11px] text-[#b89f8d] font-medium block mt-0.5" dir="ltr">Cold Drinks</span>
+            </div>
+            <svg class="w-8 h-8 text-[#e5d3c0] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 8h12l-1.5 13h-9L6 8z" /><path d="M5 8h14" /><path d="M12 8V3l3-1" /></svg>
+          </div>
+        </button>
+
+        <!-- 4. كوكتيلات -->
+
+<button type="button" onclick="openCategory('cocktails', 'كوكتيلات', 'Cocktails & Juices')" class="category-card rounded-3xl p-2.5 text-right flex flex-col justify-between group focus:outline-none cursor-pointer">
+          <div class="w-full h-32 sm:h-36 rounded-2xl overflow-hidden relative bg-[#23150e]">
+            <img src="./images/p.jpg" alt="كوكتيلات" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+          </div>
+          <div class="flex items-center justify-between pt-3 pb-1 px-1">
+            <div>
+              <h2 class="text-base sm:text-lg font-bold text-[#f5ebe0] leading-tight">كوكتيلات</h2>
+              <span class="text-[11px] text-[#b89f8d] font-medium block mt-0.5" dir="ltr">Cocktails</span>
+            </div>
+            <svg class="w-8 h-8 text-[#e5d3c0] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 3h8l-4 7-4-7z" /><path d="M12 10v9" /><path d="M8 19h8" /><path d="M14 5l3-3" /></svg>
+          </div>
+        </button>
+
+      </main>
+    </div>
+
+    <footer class="relative z-10 px-5 mt-7">
+      <div class="gold-glow-box rounded-full py-3.5 px-6 bg-[#170e09]/90 flex items-center justify-center gap-2.5 text-center">
+        <span class="text-sm sm:text-base font-semibold text-[#f3e3d3] tracking-wide">
+          مذاق استثنائي .. في كل كوب ..
+        </span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Modal -->
+  <div id="itemsModal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm">
+    <div class="w-full max-w-md bg-[#180f0a] border-t sm:border border-[#d9a066]/40 rounded-t-3xl sm:rounded-3xl p-6 max-h-[82vh] flex flex-col shadow-2xl">
+      <div class="flex items-center justify-between pb-4 border-b border-[#d9a066]/20">
+        <div>
+          <h3 id="modalTitle" class="text-xl font-bold text-[#f5ebe0]">القائمة</h3>
+          <p id="modalSubtitle" class="text-xs text-[#b89f8d]" dir="ltr">Menu Items</p>
+        </div>
+        <button id="closeModalBtn" type="button" class="w-9 h-9 rounded-full bg-[#2a1b12] text-[#e5d3c0] hover:bg-[#3d271a] flex items-center justify-center cursor-pointer transition">✕</button>
+      </div>
+      <div id="itemsList" class="mt-4 space-y-3 overflow-y-auto pr-1">
+        <p class="text-center text-[#b89f8d] py-6">جاري التحميل...</p>
+      </div>
+    </div>
+  </div>
+
+<!-- Firebase & Logic Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAKrzt23VEmwrYInkrRO-VtLNAGILnvAis",
+      authDomain: "saas21.firebaseapp.com",
+      projectId: "saas21",
+      storageBucket: "saas21.firebasestorage.app",
+      messagingSenderId: "493115658602",
+      appId: "1:493115658602:web:854c0496b336866b669513",
+      measurementId: "G-8MRHWFJEMY"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const noticeBox = document.getElementById('noticeBox');
+    const noticeText = document.getElementById('noticeText');
+    const modal = document.getElementById('itemsModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalSubtitle = document.getElementById('modalSubtitle');
+    const itemsList = document.getElementById('itemsList');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentCafeId = urlParams.get('cafe') || 'royal-cafe';
+
+    function showNotice(message) {
+      noticeText.textContent = message;
+      noticeBox.classList.remove('hidden');
+    }
+
+    async function initMenu() {
+      try {
+        const cafeRef = doc(db, "cafes", currentCafeId);
+        const cafeSnap = await getDoc(cafeRef);
+        if (!cafeSnap.exists()) return;
+        const cafeData = cafeSnap.data();
+        if (cafeData.name) {
+          document.title = '${cafeData.name} - المنيو الإلكتروني';
+          document.getElementById('cafeLogoMain').textContent = cafeData.name;
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+
+    // جعل الدالة متاحة عالمياً لتعمل مع onclick في الـ HTML
+    window.openCategory = async function(categoryKey, title, subtitle) {
+      console.log("تم النقر بنجاح على القسم:", categoryKey);
+      modalTitle.textContent = title;
+      modalSubtitle.textContent = subtitle || '';
+      itemsList.innerHTML = '<div class="text-center text-[#b89f8d] py-8">جاري جلب الأصناف...</div>';
+      
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      try {
+        const itemsRef = collection(db, "cafes", currentCafeId, categoryKey);
+        const querySnapshot = await getDocs(itemsRef);
+        
+        if (querySnapshot.empty) {
+          itemsList.innerHTML = '<div class="text-center text-[#b89f8d] py-8">لا توجد أصناف مضافة حالياً في هذا القسم.</div>';
+          return;
+        }
+
+        let htmlContent = '';
+        querySnapshot.forEach((docSnap) => {
+          const item = docSnap.data();
+          htmlContent += `
+            <div class="p-3.5 rounded-2xl bg-[#23150e] border border-[#d9a066]/20 flex justify-between items-center gap-3">
+              <div class="text-right">
+                <h4 class="font-bold text-[#f5ebe0] text-[15px]">${item.name || 'بدون اسم'}</h4>
+${item.desc ? '<p class="text-xs text-[#b89f8d] mt-1">' + item.desc + '</p>' : ''}
+              </div>
+              <span class="font-bold text-[#eab364] bg-[#140c08] px-3 py-1.5 rounded-full border border-[#eab364]/30 text-xs whitespace-nowrap shrink-0">
+                ${item.price || ''}
+              </span>
+            </div>
+          `;
+        });
+        
+        itemsList.innerHTML = htmlContent;
+      } catch (error) {
+        console.error("Error fetching items:", error);
+        itemsList.innerHTML = '<div class="text-center text-red-400 py-8">حدث خطأ في الاتصال بقاعدة البيانات.</div>';
+      }
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    closeModalBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    initMenu();
+  </script>
+</body>
+</html>

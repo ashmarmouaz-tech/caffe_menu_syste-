@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة تحكم الكافيه - SaaS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- مكتبة توليد QR Code -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body { font-family: 'Cairo', sans-serif; background-color: #0b0806; color: #f5ebe0; }
+  </style>
+</head>
+<body class="min-h-screen p-5 flex justify-center">
+
+  <div class="w-full max-w-2xl space-y-6">
+    
+    <!-- رأس الصفحة واسم الكافيه وزر الخروج -->
+    <header class="text-center border-b border-[#d9a066]/30 pb-4 flex justify-between items-center">
+      <div>
+        <h1 id="headerCafeName" class="text-2xl font-extrabold text-[#eab364]">لوحة التحكم</h1>
+        <p class="text-xs text-[#b89f8d] mt-1">إدارة منيو الأطباق والأراغيل الخاصة بك</p>
+      </div>
+      <button onclick="logout()" class="text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-xl cursor-pointer">
+        تسجيل الخروج 🚪
+      </button>
+    </header>
+
+    <!-- 1. صندوق عرض اسم الكافيه والـ QR الثابت (بدون حقول تعديل مكررة) -->
+    <div class="bg-[#180f0a] border border-[#d9a066]/30 rounded-3xl p-6 flex flex-col items-center text-center space-y-3">
+      <h2 id="displayCafeTitle" class="text-lg font-bold text-[#f5ebe0]">رمز QR الخاص بطاولات الكافيه</h2>
+      <div id="qrcode" class="p-4 bg-white rounded-2xl shadow-lg"></div>
+      <p id="generatedLinkText" class="text-xs text-[#b89f8d] break-all" dir="ltr"></p>
+      
+      <div class="flex flex-col sm:flex-row gap-3 w-full pt-2">
+        <a id="goToMenuBtn" href="#" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition text-center flex items-center justify-center gap-2">
+          <span>👁️ معاينة المنيو الخاص بك</span>
+        </a>
+        <button onclick="downloadQR()" class="flex-1 bg-[#2a1b12] hover:bg-[#3a261a] text-[#f5ebe0] border border-[#d9a066]/40 py-2.5 px-4 rounded-xl text-sm font-semibold cursor-pointer">
+          تحميل صورة الـ QR 📥
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. إضافة وإدارة الأصناف -->
+    <div class="bg-[#180f0a] border border-[#d9a066]/30 rounded-3xl p-6 space-y-4">
+      <h2 class="text-lg font-bold text-[#f5ebe0] border-r-4 border-[#eab364] pr-3">إضافة صنف جديد للمنيو</h2>
+      
+      <input type="hidden" id="editItemId" value="" />
+      <input type="hidden" id="editItemCategory" value="" />
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs text-[#b89f8d] mb-1">القسم</label>
+          <select id="categorySelect" class="w-full bg-[#23150e] border border-[#d9a066]/30 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+            <option value="hookah">أراغيل (Hookah)</option>
+            <option value="hot">المشروبات الساخنة (Hot Drinks)</option>
+            <option value="cold">المشروبات الباردة (Cold Drinks)</option>
+            <option value="cocktails">كوكتيلات (Cocktails)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-[#b89f8d] mb-1">اسم الصنف</label>
+          <input type="text" id="itemName" placeholder="مثال: أركيلة تفاحتين" class="w-full bg-[#23150e] border border-[#d9a066]/30 rounded-xl px-4 py-2.5 text-sm text-white" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs text-[#b89f8d] mb-1">الوصف / المكونات (اختياري)</label>
+          <input type="text" id="itemDesc" placeholder="مثال: معسل فاخر مع نبريش صحي" class="w-full bg-[#23150e] border border-[#d9a066]/30 rounded-xl px-4 py-2.5 text-sm text-white" />
+        </div>
+        <div>
+          <label class="block text-xs text-[#b89f8d] mb-1">السعر</label>
+
+<input type="text" id="itemPrice" placeholder="مثال: 25,000 ل.س" class="w-full bg-[#23150e] border border-[#d9a066]/30 rounded-xl px-4 py-2.5 text-sm text-white" />
+        </div>
+      </div>
+
+      <button id="saveItemBtn" onclick="saveOrUpdateItem()" class="w-full bg-[#2a1b12] hover:bg-[#3b271b] border border-[#eab364] text-[#eab364] font-bold py-3 rounded-xl transition cursor-pointer">
+        + إضافة الصنف إلى المنيو
+      </button>
+      <p id="statusMsg" class="text-center text-sm font-bold"></p>
+
+      <div class="pt-4 border-t border-[#d9a066]/20">
+        <h3 class="text-sm font-bold text-[#eab364] mb-3">قائمة الأصناف الحالية (تعديل / حذف)</h3>
+        <div id="managementListContainer" class="space-y-2 max-h-60 overflow-y-auto"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAKrzt23VEmwrYInkrRO-VtLNAGILnvAis",
+      authDomain: "saas21.firebaseapp.com",
+      projectId: "saas21",
+      storageBucket: "saas21.firebasestorage.app",
+      messagingSenderId: "493115658602",
+      appId: "1:493115658602:web:854c0496b336866b669513",
+      measurementId: "G-8MRHWFJEMY"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // التحقق من الجلسة وجلب معرّف الكافيه واسمه المسجل
+    const activeCafeId = sessionStorage.getItem('activeCafeId');
+    const activeCafeName = sessionStorage.getItem('activeCafeName');
+
+    if (!activeCafeId) {
+      window.location.href = 'login.html';
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('headerCafeName').textContent = activeCafeName || activeCafeId;
+      document.getElementById('displayCafeTitle').textContent =' رمز QR الثابت لـ (${activeCafeName || activeCafeId})';
+
+      // بناء رابط المنيو الثابت وتوليد الـ QR تلقائياً
+      const currentPath = window.location.href.replace('admin.html', 'index.html');
+      const separator = currentPath.includes('?') ? '&' : '?';
+      const fullMenuUrl = currentPath + separator + 'cafe=' + activeCafeId;
+
+      document.getElementById('generatedLinkText').textContent = fullMenuUrl;
+      document.getElementById('goToMenuBtn').href = fullMenuUrl;
+
+      const qrContainer = document.getElementById('qrcode');
+      qrContainer.innerHTML = '';
+      new QRCode(qrContainer, {
+        text: fullMenuUrl,
+        width: 180,
+        height: 180,
+        colorDark: "#120b07",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      // جلب الأصناف
+      loadCafeItemsForManagement();
+    });
+
+    window.logout = function() {
+      sessionStorage.clear();
+      window.location.href = 'login.html';
+    };
+
+    window.downloadQR = function() {
+      const qrCanvas = document.querySelector('#qrcode canvas');
+      if (qrCanvas) {
+        const link = document.createElement('a');
+        link.download = 'QR-' + activeCafeId + '.png';
+        link.href = qrCanvas.toDataURL("image/png");
+        link.click();
+      }
+    };
+
+    window.saveOrUpdateItem = async function() {
+      const category = document.getElementById('categorySelect').value;
+      const name = document.getElementById('itemName').value.trim();
+      const desc = document.getElementById('itemDesc').value.trim();
+      const price = document.getElementById('itemPrice').value.trim();
+      const editId = document.getElementById('editItemId').value;
+      const statusMsg = document.getElementById('statusMsg');
+
+      if (!name || !price) {
+        alert('يرجى إدخال اسم الصنف والسعر!');
+        return;
+      }
+
+      statusMsg.textContent = 'جاري المعالجة...';
+      statusMsg.className = 'text-center text-sm font-bold text-[#b89f8d]';
+
+      try {
+        if (editId) {
+          const editCategory = document.getElementById('editItemCategory').value;
+
+await updateDoc(doc(db, "cafes", activeCafeId, editCategory, editId), {
+            name: name,
+            desc: desc,
+            price: price
+          });
+          statusMsg.textContent = 'تم تعديل الصنف بنجاح! ✅';
+          document.getElementById('editItemId').value = '';
+          document.getElementById('editItemCategory').value = '';
+          document.getElementById('saveItemBtn').textContent = '+ إضافة الصنف إلى المنيو';
+        } else {
+          await addDoc(collection(db, "cafes", activeCafeId, category), {
+            name: name,
+            desc: desc,
+            price: price
+          });
+          statusMsg.textContent = 'تمت إضافة الصنف بنجاح! ✅';
+        }
+
+        statusMsg.className = 'text-center text-sm font-bold text-green-400';
+        document.getElementById('itemName').value = '';
+        document.getElementById('itemDesc').value = '';
+        document.getElementById('itemPrice').value = '';
+        
+        loadCafeItemsForManagement();
+      } catch (error) {
+        console.error(error);
+        statusMsg.textContent = 'حدث خطأ!';
+        statusMsg.className = 'text-center text-sm font-bold text-red-400';
+      }
+    };
+
+    window.loadCafeItemsForManagement = async function() {
+      const container = document.getElementById('managementListContainer');
+      container.innerHTML = '<p class="text-xs text-center text-[#b89f8d]">جاري جلب الأصناف...</p>';
+      const categories = ['hookah', 'hot', 'cold', 'cocktails'];
+      let html = '';
+
+      try {
+        for (const cat of categories) {
+          const snapshot = await getDocs(collection(db, "cafes", activeCafeId, cat));
+          if (!snapshot.empty) {
+            snapshot.forEach((docSnap) => {
+              const item = docSnap.data();
+              const itemId = docSnap.id;
+              html += `
+                <div class="bg-[#23150e] border border-[#d9a066]/20 p-2.5 rounded-xl flex items-center justify-between text-xs">
+                  <div>
+                    <span class="text-[#eab364] font-bold">[${cat}]</span> 
+                    <span class="text-[#f5ebe0] font-semibold">${item.name}</span> - 
+                    <span class="text-[#b89f8d]">${item.price}</span>
+                  </div>
+                  <div class="flex gap-1.5">
+                    <button onclick="prepareEditItem('${itemId}', '${cat}', '${item.name}', '${item.desc || ''}', '${item.price}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg cursor-pointer">تعديل ✏️</button>
+                    <button onclick="deleteItem('${itemId}', '${cat}')" class="bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded-lg cursor-pointer">حذف 🗑️</button>
+                  </div>
+                </div>
+              `;
+            });
+          }
+        }
+
+        if (html === '') {
+          container.innerHTML = '<p class="text-xs text-center text-[#b89f8d]">لا توجد أصناف مضافة بعد.</p>';
+        } else {
+          container.innerHTML = html;
+        }
+      } catch (error) {
+        console.error(error);
+        container.innerHTML = '<p class="text-xs text-center text-red-400">خطأ في جلب الأصناف.</p>';
+      }
+    };
+
+    window.prepareEditItem = function(id, category, name, desc, price) {
+      document.getElementById('editItemId').value = id;
+      document.getElementById('editItemCategory').value = category;
+      document.getElementById('categorySelect').value = category;
+      document.getElementById('itemName').value = name;
+      document.getElementById('itemDesc').value = desc === 'undefined' ? '' : desc;
+      document.getElementById('itemPrice').value = price;
+      
+      document.getElementById('saveItemBtn').textContent = '💾 حفظ التعديلات على الصنف';
+      window.scrollTo({ top: document.getElementById('itemName').offsetTop - 50, behavior: 'smooth' });
+    };
+
+    window.deleteItem = async function(id, category) {
+      if (confirm('هل أنت متأكد من حذف هذا الصنف؟')) {
+        try {
+          await deleteDoc(doc(db, "cafes", activeCafeId, category, id));
+          alert('تم الحذف بنجاح!');
+
+loadCafeItemsForManagement();
+        } catch (error) {
+          console.error(error);
+          alert('حدث خطأ أثناء الحذف.');
+        }
+      }
+    };
+  </script>
+</body>
+</html>
