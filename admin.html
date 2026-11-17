@@ -43,6 +43,15 @@
       </div>
     </div>
 
+    <!-- تعديل العبارة التي تظهر أسفل منيو الزبون -->
+    <div class="bg-[#180f0a] border border-[#d9a066]/30 rounded-3xl p-6 space-y-3">
+      <h2 class="text-lg font-bold text-[#f5ebe0] border-r-4 border-[#eab364] pr-3">عبارة أسفل منيو الزبون</h2>
+      <label for="footerTextInput" class="block text-xs text-[#b89f8d]">اكتب العبارة التي تريد ظهورها أسفل صفحة المنيو</label>
+      <input type="text" id="footerTextInput" maxlength="120" placeholder="مذاق استثنائي .. في كل كوب .." class="w-full bg-[#23150e] border border-[#d9a066]/30 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none" />
+      <button onclick="saveFooterText()" class="w-full bg-[#2a1b12] hover:bg-[#3b271b] border border-[#eab364] text-[#eab364] font-bold py-3 rounded-xl transition cursor-pointer">💾 حفظ العبارة</button>
+      <p id="footerStatusMsg" class="text-center text-sm font-bold"></p>
+    </div>
+
     <!-- 2. إضافة وإدارة الأصناف -->
     <div class="bg-[#180f0a] border border-[#d9a066]/30 rounded-3xl p-6 space-y-4">
       <h2 class="text-lg font-bold text-[#f5ebe0] border-r-4 border-[#eab364] pr-3">إضافة صنف جديد للمنيو</h2>
@@ -93,7 +102,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, getDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAKrzt23VEmwrYInkrRO-VtLNAGILnvAis",
@@ -139,9 +148,46 @@
         correctLevel: QRCode.CorrectLevel.H
       });
 
+      // جلب العبارة المحفوظة التي تظهر أسفل منيو الزبون
+      loadFooterText();
+
       // جلب الأصناف
       loadCafeItemsForManagement();
     });
+
+    window.loadFooterText = async function() {
+      try {
+        const cafeSnap = await getDoc(doc(db, "cafes", activeCafeId));
+        const savedText = cafeSnap.exists() ? cafeSnap.data().footerText : '';
+        document.getElementById('footerTextInput').value = savedText || 'مذاق استثنائي .. في كل كوب ..';
+      } catch (error) {
+        console.error('Error loading footer text:', error);
+        document.getElementById('footerTextInput').value = 'مذاق استثنائي .. في كل كوب ..';
+      }
+    };
+
+    window.saveFooterText = async function() {
+      const input = document.getElementById('footerTextInput');
+      const status = document.getElementById('footerStatusMsg');
+      const footerText = input.value.trim();
+      if (!footerText) {
+        status.textContent = 'لا تترك حقل العبارة فارغاً';
+        status.className = 'text-center text-sm font-bold text-red-400';
+        input.focus();
+        return;
+      }
+      status.textContent = 'جاري الحفظ...';
+      status.className = 'text-center text-sm font-bold text-[#b89f8d]';
+      try {
+        await updateDoc(doc(db, "cafes", activeCafeId), { footerText });
+        status.textContent = 'تم حفظ العبارة بنجاح! ✅';
+        status.className = 'text-center text-sm font-bold text-green-400';
+      } catch (error) {
+        console.error('Error saving footer text:', error);
+        status.textContent = 'تعذر حفظ العبارة، حاول مرة أخرى';
+        status.className = 'text-center text-sm font-bold text-red-400';
+      }
+    };
 
     window.logout = function() {
       sessionStorage.clear();
@@ -158,6 +204,39 @@
       }
     };
 
+    // تغيير التلميحات تلقائياً حسب القسم المختار
+    function updateItemPlaceholders() {
+      const category = document.getElementById('categorySelect').value;
+      const nameInput = document.getElementById('itemName');
+      const descInput = document.getElementById('itemDesc');
+
+      const hints = {
+        hookah: {
+          name: 'مثال: أركيلة تفاحتين',
+          desc: 'مثال: نكهة تفاحتين مع نعناع'
+        },
+        hot: {
+          name: 'مثال: قهوة تركية',
+          desc: 'مثال: قهوة عربية أو تركية مع الهيل'
+        },
+        cold: {
+          name: 'مثال: عصير برتقال',
+          desc: 'مثال: عصير برتقال طازج'
+        },
+        cocktails: {
+          name: 'مثال: كوكتيل فواكه',
+          desc: 'مثال: فراولة وموز ومانجو'
+        }
+      };
+
+      const selectedHints = hints[category] || hints.hookah;
+      nameInput.placeholder = selectedHints.name;
+      descInput.placeholder = selectedHints.desc;
+    }
+
+    document.getElementById('categorySelect').addEventListener('change', updateItemPlaceholders);
+    window.addEventListener('DOMContentLoaded', updateItemPlaceholders);
+
     window.saveOrUpdateItem = async function() {
       const category = document.getElementById('categorySelect').value;
       const name = document.getElementById('itemName').value.trim();
@@ -166,8 +245,18 @@
       const editId = document.getElementById('editItemId').value;
       const statusMsg = document.getElementById('statusMsg');
 
-      if (!name || !price) {
-        alert('يرجى إدخال اسم الصنف والسعر!');
+      // التحقق من الحقول المطلوبة وإظهار اسم الحقل الناقص بوضوح
+      if (!name) {
+        statusMsg.textContent = 'لا تترك حقل «اسم الصنف» فارغاً';
+        statusMsg.className = 'text-center text-sm font-bold text-red-400';
+        document.getElementById('itemName').focus();
+        return;
+      }
+
+      if (!price) {
+        statusMsg.textContent = 'لا تترك حقل «السعر» فارغاً';
+        statusMsg.className = 'text-center text-sm font-bold text-red-400';
+        document.getElementById('itemPrice').focus();
         return;
       }
 
@@ -175,6 +264,22 @@
       statusMsg.className = 'text-center text-sm font-bold text-[#b89f8d]';
 
       try {
+        // منع تكرار اسم الصنف ضمن القسم نفسه، مع تجاهل الصنف الجاري تعديله
+        const existingItems = await getDocs(collection(db, "cafes", activeCafeId, category));
+        const normalizedName = name.replace(/\s+/g, ' ').trim().toLocaleLowerCase();
+        const duplicate = existingItems.docs.some(itemDoc => {
+          if (editId && itemDoc.id === editId && category === document.getElementById('editItemCategory').value) return false;
+          const existingName = String(itemDoc.data().name || '').replace(/\s+/g, ' ').trim().toLocaleLowerCase();
+          return existingName === normalizedName;
+        });
+
+        if (duplicate) {
+          statusMsg.textContent = 'هذا الصنف موجود مسبقاً';
+          statusMsg.className = 'text-center text-sm font-bold text-red-400';
+          document.getElementById('itemName').focus();
+          return;
+        }
+
         if (editId) {
           const editCategory = document.getElementById('editItemCategory').value;
 
@@ -254,6 +359,7 @@ await updateDoc(doc(db, "cafes", activeCafeId, editCategory, editId), {
       document.getElementById('editItemId').value = id;
       document.getElementById('editItemCategory').value = category;
       document.getElementById('categorySelect').value = category;
+      updateItemPlaceholders();
       document.getElementById('itemName').value = name;
       document.getElementById('itemDesc').value = desc === 'undefined' ? '' : desc;
       document.getElementById('itemPrice').value = price;
