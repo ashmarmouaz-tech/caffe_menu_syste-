@@ -157,7 +157,7 @@
 
     <footer class="relative z-10 px-5 mt-7">
       <div class="gold-glow-box rounded-full py-3.5 px-6 bg-[#170e09]/90 flex items-center justify-center gap-2.5 text-center">
-        <span class="text-sm sm:text-base font-semibold text-[#f3e3d3] tracking-wide">
+        <span id="cafeFooterText" class="text-sm sm:text-base font-semibold text-[#f3e3d3] tracking-wide">
           مذاق استثنائي .. في كل كوب ..
         </span>
       </div>
@@ -184,7 +184,7 @@
 <!-- Firebase & Logic Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAKrzt23VEmwrYInkrRO-VtLNAGILnvAis",
@@ -215,23 +215,51 @@
       noticeBox.classList.remove('hidden');
     }
 
+    let cafeIsActive = true;
+
     async function initMenu() {
-      try {
-        const cafeRef = doc(db, "cafes", currentCafeId);
-        const cafeSnap = await getDoc(cafeRef);
-        if (!cafeSnap.exists()) return;
+      const cafeRef = doc(db, "cafes", currentCafeId);
+
+      // مراقبة حالة الكافيه مباشرة: عند الإيقاف تختفي الأقسام فوراً،
+      // وعند إعادة التفعيل يظهر المنيو من جديد دون الحاجة لتحديث الصفحة.
+      onSnapshot(cafeRef, (cafeSnap) => {
+        if (!cafeSnap.exists()) {
+          cafeIsActive = false;
+          document.getElementById('categoriesContainer').classList.add('hidden');
+          showNotice('هذا المنيو غير متاح حالياً.');
+          return;
+        }
+
         const cafeData = cafeSnap.data();
+        cafeIsActive = cafeData.active !== false;
+        document.getElementById('cafeFooterText').textContent = cafeData.footerText || 'مذاق استثنائي .. في كل كوب ..';
+
         if (cafeData.name) {
-          document.title = '${cafeData.name} - المنيو الإلكتروني';
+          document.title = `${cafeData.name} - المنيو الإلكتروني`;
           document.getElementById('cafeLogoMain').textContent = cafeData.name;
         }
-      } catch (error) {
-        console.error("Error:", error);
-      }
+
+        if (!cafeIsActive) {
+          document.getElementById('categoriesContainer').classList.add('hidden');
+          showNotice('نعتذر، المنيو متوقف مؤقتاً من إدارة الكافيه. يرجى المحاولة لاحقاً.');
+          closeModal();
+        } else {
+          document.getElementById('categoriesContainer').classList.remove('hidden');
+          noticeBox.classList.add('hidden');
+        }
+      }, (error) => {
+        console.error('Error monitoring cafe status:', error);
+        showNotice('تعذر التحقق من حالة المنيو. يرجى إعادة تحميل الصفحة.');
+      });
     }
 
     // جعل الدالة متاحة عالمياً لتعمل مع onclick في الـ HTML
     window.openCategory = async function(categoryKey, title, subtitle) {
+      // منع فتح الأقسام إذا كان المنيو متوقفاً
+      if (!cafeIsActive) {
+        showNotice('نعتذر، المنيو متوقف مؤقتاً من إدارة الكافيه.');
+        return;
+      }
       console.log("تم النقر بنجاح على القسم:", categoryKey);
       modalTitle.textContent = title;
       modalSubtitle.textContent = subtitle || '';
